@@ -1,0 +1,19 @@
+# Secrets: mounted at run time, never baked into the image
+.env
+
+# Mounted at run time
+data/
+chroma_db/
+
+# Not needed in the image
+venv/
+.git/
+.gitignore
+.vscode/
+.DS_Store
+__pycache__/
+*.pyc
+README.md
+Dockerfile
+.dockerignore
+graph.png
