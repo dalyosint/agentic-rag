@@ -1,4 +1,3 @@
-# Agentic RAG for Medical Questions
 
 An agentic Retrieval-Augmented Generation (RAG) pipeline built with [LangGraph](https://github.com/langchain-ai/langgraph). It answers medical questions by deciding where to look for information, checking that what it found is relevant, and falling back to a live web search when the local knowledge base is not enough.
 
@@ -43,6 +42,8 @@ agentic-rag/
 ├── data/                # Your CSV datasets (gitignored, see below)
 ├── chroma_db/           # Persistent vector store, created automatically (gitignored)
 ├── main.py              # Entry point (to be implemented)
+├── api.py               # FastAPI web server
+├── static/              # Web page (HTML, CSS, JavaScript)
 ├── requirements.txt
 └── .env                 # API keys (gitignored)
 ```
@@ -124,6 +125,24 @@ While it runs, each node prints its progress, for example:
 ---GENERATE (CALLING LLM)---
 ```
 
+### Web interface
+
+The project also includes a chat web page, served by a FastAPI backend (`api.py` + `static/`):
+
+```bash
+uvicorn api:app --reload
+```
+
+Then open http://127.0.0.1:8000. Each answer shows which source it came from (Q&A database, device manuals or web search), with a collapsible panel holding the retrieved passages. The conversation is kept for the browser session.
+
+API endpoints:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/chat` | Body `{"query": "..."}` → `{"answer", "source", "context"}` |
+| `GET` | `/api/health` | Returns `{"status": "ok"}` |
+| `GET` | `/docs` | Interactive API documentation |
+
 ### Graph state
 
 Every node reads and updates a shared `GraphState`:
@@ -154,6 +173,7 @@ Every node reads and updates a shared `GraphState`:
 - **OpenAI**: routing, relevance checking and answer generation
 - **Tavily**: live web search
 - **pandas**: data loading and preprocessing
+- **FastAPI + Uvicorn**: web server for the chat page
 
 ## Disclaimer
 

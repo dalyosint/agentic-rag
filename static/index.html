@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Medical Agentic RAG</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">+</span>
+        <div>
+          <h1>Medical Agentic RAG</h1>
+          <p class="subtitle">Answers from medical Q&amp;A, device manuals or the web</p>
+        </div>
+      </div>
+      <button id="clear-btn" class="ghost-btn" type="button" title="Clear the conversation">Clear chat</button>
+    </header>
+
+    <main id="chat" class="chat" aria-live="polite">
+      <section id="welcome" class="welcome">
+        <h2>Ask a medical question</h2>
+        <p>The agent picks the best source, checks the results are relevant, and searches the web if they aren't.</p>
+        <div class="examples">
+          <button class="example" type="button">What are the symptoms of type 2 diabetes?</button>
+          <button class="example" type="button">What are the contraindications of an insulin pump?</button>
+          <button class="example" type="button">What is the latest news on GLP-1 drugs?</button>
+        </div>
+      </section>
+    </main>
+
+    <form id="chat-form" class="composer">
+      <textarea id="query" rows="1" placeholder="Type your question…" maxlength="2000" required></textarea>
+      <button id="send-btn" type="submit" class="send-btn">Send</button>
+    </form>
+    <p class="disclaimer">For educational use only. Answers may be inaccurate and are not medical advice.</p>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
