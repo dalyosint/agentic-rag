@@ -42,7 +42,7 @@ agentic-rag/
 │   └── graph.py         # LangGraph state, routing functions and graph wiring
 ├── data/                # Your CSV datasets (gitignored, see below)
 ├── chroma_db/           # Persistent vector store, created automatically (gitignored)
-├── main.py              # Entry point (to be implemented)
+├── main.py              # Interactive command-line entry point
 ├── requirements.txt
 └── .env                 # API keys (gitignored)
 ```
@@ -88,17 +88,63 @@ For each file, the loader takes a fixed random sample of 500 rows (`random_state
 - `medical_qna`
 - `medical_device_manual`
 
-The collections are saved to `chroma_db/` and reused on later runs. To build them ahead of time:
+The collections are saved to `chroma_db/` and reused on later runs. `main.py` builds them automatically on first start. To build them on their own:
 
 ```bash
 python -m src.data_loader
 ```
 
-To re-index after changing the data, call `init_collections(rebuild=True)`.
+To re-index after changing the data, run `python main.py --rebuild`.
 
 ## Usage
 
-`main.py` is still empty, so for now you can run the graph from Python. Load the environment variables first:
+Start the interactive assistant:
+
+```bash
+python main.py
+```
+
+On startup, `main.py`:
+
+1. Loads your `.env` and stops with a clear message if `OPENAI_API_KEY` or `TAVILY_API_KEY` is missing.
+2. Builds the ChromaDB collections, or reuses them if they already exist.
+3. Compiles the LangGraph workflow and opens a prompt where you can ask questions.
+
+Type a question at the `You:` prompt. Type `exit` or `quit` (or press `Ctrl+C`) to leave.
+
+```
+Agentic RAG ready. Type a question, or 'exit' to quit.
+
+You: What are the symptoms of type 2 diabetes?
+---ROUTER DECISION: Retrieve_QnA---
+---RETRIEVING FROM MEDICAL Q&A---
+---CONTEXT RELEVANCE CHECKER---
+---RELEVANCE DECISION: Yes---
+---AUGMENT (BUILDING PROMPT)---
+---GENERATE (CALLING LLM)---
+
+Source: Medical Q&A Collection
+Answer: ...
+```
+
+### Command-line options
+
+| Option | Description |
+|--------|-------------|
+| `--rebuild` | Delete and re-index the ChromaDB collections. Use this after changing the CSV files. |
+| `--draw-graph` | Save the workflow diagram as `graph.png` (needs an internet connection). |
+
+```bash
+python main.py --rebuild
+```
+
+```bash
+python main.py --draw-graph
+```
+
+### Using the graph from Python
+
+You can also call the pipeline from your own code:
 
 ```python
 from dotenv import load_dotenv
@@ -107,21 +153,10 @@ load_dotenv()
 from src.graph import build_graph
 
 app = build_graph()
-result = app.invoke({"query": "What are the symptoms of type 2 diabetes?"})
+result = app.invoke({"query": "How do I calibrate a blood glucose meter?", "iteration_count": 0})
 
-print("Source:  ", result["source"])
-print("Answer:  ", result["response"])
-```
-
-While it runs, each node prints its progress, for example:
-
-```
----ROUTER DECISION: Retrieve_QnA---
----RETRIEVING FROM MEDICAL Q&A---
----CONTEXT RELEVANCE CHECKER---
----RELEVANCE DECISION: Yes---
----AUGMENT (BUILDING PROMPT)---
----GENERATE (CALLING LLM)---
+print("Source:", result["source"])
+print("Answer:", result["response"])
 ```
 
 ### Graph state
